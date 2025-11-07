@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX 400
+
+char stack[MAX];
+int top = -1;
+
+int precedence(char op) {
+    switch (op) {
+        case '+': case '-': return 1;
+        case '*': case '/': return 2;
+        case '^': return 3;
+        default: return 0;
+    }
+}
+
+void push(char c) {
+    stack[++top] = c;
+}
+
+char pop() {
+    return stack[top--];
+}
+
+char peek() {
+    return stack[top];
+}
+
+int isOperator(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
+}
+
+void toRPN(char *expr) {
+    for (int i = 0; expr[i]; i++) {
+        char c = expr[i];
+        if (isalpha(c)) {
+            printf("%c", c);
+        } else if (c == '(') {
+            push(c);
+        } else if (c == ')') {
+            while (top != -1 && peek() != '(')
+                printf("%c", pop());
+            pop(); // remove '('
+        } else if (isOperator(c)) {
+            while (top != -1 && precedence(peek()) >= precedence(c))
+                printf("%c", pop());
+            push(c);
+        }
+    }
+    while (top != -1)
+        printf("%c", pop());
+    printf("\n");
+}
+
+int main() {
+    int t;
+    char expr[MAX];
+    scanf("%d", &t);
+    while (t--) {
+        scanf("%s", expr);
+        toRPN(expr);
+    }
+    return 0;
+}
